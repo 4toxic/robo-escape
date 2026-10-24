@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robo Escape</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(ellipse at top, #173b5c, #0b1220 70%);
+      color: white;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    main {
+      width: min(100%, 680px);
+      text-align: center;
+    }
+
+    h1 {
+      color: #43d9ff;
+      font-size: clamp(30px, 6vw, 46px);
+      letter-spacing: 4px;
+      text-shadow: 0 0 18px #168fbd;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #a9c8dc;
+      letter-spacing: 2px;
+      font-size: 13px;
+    }
+
+    .game-frame {
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #43d9ff;
+      border-radius: 14px;
+      box-shadow: 0 0 28px #0b8db344;
+      line-height: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #101c30;
+    }
+
+    .start-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      padding: 20px;
+      background: #081322ee;
+      line-height: normal;
+    }
+
+    .start-screen h2 {
+      color: #43d9ff;
+      font-size: clamp(24px, 5vw, 36px);
+      margin: 0;
+    }
+
+    .start-screen p {
+      color: #c4d9e9;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .robot-icon {
+      font-size: 48px;
+    }
+
+    button {
+      border: 1px solid #7ce8ff;
+      border-radius: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #43d9ff, #168fbd);
+      color: #071322;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      box-shadow: 0 0 20px #43d9ff66;
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-around;
+      gap: 12px;
+      margin: 14px 0;
+      padding: 14px;
+      border: 1px solid #244660;
+      border-radius: 10px;
+      background: #122238;
+    }
+
+    .hud span {
+      color: #9abbd0;
+      font-size: 12px;
+    }
+
+    .hud strong {
+      display: block;
+      margin-top: 5px;
+      color: #43d9ff;
+      font-size: 22px;
+    }
+
+    #status {
+      color: #b7d2e5;
+      min-height: 24px;
+    }
+
+    footer {
+      margin-top: 24px;
+      color: #7897ae;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+.player-label {
+  color: #a9c8dc;
+  font-size: 14px;
+}
+
+#playerName {
+  width: min(100%, 280px);
+  padding: 11px 14px;
+  border: 1px solid #43d9ff;
+  border-radius: 8px;
+  outline: none;
+  background: #122238;
+  color: white;
+  font-size: 15px;
+  text-align: center;
+}
+
+#playerName::placeholder {
+  color: #7897ae;
+}
+
+#playerName:focus {
+  box-shadow: 0 0 12px #43d9ff66;
+}
+.leaderboard {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid #244660;
+  border-radius: 12px;
+  background: #122238;
+  text-align: left;
+  box-shadow: 0 0 20px #0b8db322;
+}
+
+.leaderboard h2 {
+  margin: 0 0 14px;
+  color: #43d9ff;
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.leaderboard-header button {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.leaderboard-table-wrap {
+  overflow-x: auto;
+}
+
+.leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+  line-height: normal;
+}
+
+.leaderboard th,
+.leaderboard td {
+  padding: 11px 8px;
+  border-bottom: 1px solid #244660;
+  color: #d5e8f5;
+  font-size: 14px;
+  text-align: left;
+}
+
+.leaderboard th {
+  color: #8fb6ce;
+  font-size: 12px;
+}
+
+.leaderboard th:first-child,
+.leaderboard td:first-child {
+  width: 55px;
+  text-align: center;
+}
+
+.leaderboard th:last-child,
+.leaderboard td:last-child {
+  text-align: right;
+}
+
+.leaderboard td:last-child {
+  color: #43d9ff;
+  font-weight: bold;
+}
+
+.leaderboard tr:last-child td {
+  border-bottom: none;
+}
+
+#leaderboardMessage {
+  margin: 12px 0 0;
+  color: #a9c8dc;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .leaderboard {
+    padding: 12px;
+  }
+
+  .leaderboard th,
+  .leaderboard td {
+    padding: 9px 5px;
+    font-size: 12px;
+  }
+}
+
+/* ===== GAME HISTORY ===== */
+.history-section {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid #244660;
+  border-radius: 12px;
+  background: #122238;
+  text-align: left;
+}
+
+.history-section h2 {
+  margin: 0;
+  color: #43d9ff;
+  text-align: center;
+  font-size: 22px;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.history-table-wrap {
+  overflow-x: auto;
+}
+
+.history-section table {
+  width: 100%;
+  border-collapse: collapse;
+  line-height: normal;
+}
+
+.history-section th,
+.history-section td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #244660;
+  color: #d5e8f5;
+  font-size: 13px;
+  text-align: left;
+}
+
+.history-section th {
+  color: #8fb6ce;
+  font-size: 12px;
+}
+
+.history-section td:last-child {
+  color: #43d9ff;
+  font-weight: bold;
+  text-align: right;
+}
+
+#historyMessage {
+  color: #a9c8dc;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 0;
+}
+  /* ===== MOBILE GAME CONTROLS ===== */
+.mobile-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+  margin: 14px auto;
+  width: 100%;
+}
+
+.mobile-controls button {
+  width: 76px;
+  height: 60px;
+  border: 1px solid #43d9ff;
+  border-radius: 14px;
+  background: #122b43;
+  color: #43d9ff;
+  font-size: 28px;
+  font-weight: bold;
+  box-shadow: 0 0 12px #168fbd33;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-controls button:active {
+  background: #168fbd;
+  color: white;
+  transform: scale(0.96);
+}
+
+.mobile-controls span {
+  color: #8fb6ce;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 600px) {
+  .mobile-controls {
+    gap: 36px;
+    margin: 12px auto;
+  }
+
+  .mobile-controls button {
+    width: 84px;
+    height: 64px;
+    font-size: 30px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-controls {
+    margin: 6px auto;
+    gap: 22px;
+  }
+
+  .mobile-controls button {
+    width: 68px;
+    height: 48px;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>ROBO ESCAPE</h1>
+    <p class="subtitle">CYBER SURVIVAL PROTOCOL</p>
+
+    <div class="game-frame">
+      <canvas id="game" width="600" height="400"></canvas>
+      <div class="mobile-controls" aria-label="ปุ่มควบคุมเกม">
+  <button
+    id="moveLeft"
+    type="button"
+    aria-label="เคลื่อนที่ไปทางซ้าย"
+  >◀</button>
+
+  <span>MOVE</span>
+
+  <button
+    id="moveRight"
+    type="button"
+    aria-label="เคลื่อนที่ไปทางขวา"
+  >▶</button>
+</div>
+
+      <div id="startScreen" class="start-screen">
+        <div class="robot-icon">🤖</div>
+        <h2>READY, PILOT?</h2>
+        <p>
+          หลบสิ่งกีดขวางให้นานที่สุด<br>
+          ยิ่งอยู่รอด คะแนนยิ่งสูง
+        </p>
+
+  <label for="playerName" class="player-label">
+    ตั้งชื่อนักบินของคุณ
+  </label>
+
+  <input
+    id="playerName"
+    type="text"
+    maxlength="20"
+    placeholder="กรอกชื่อผู้เล่น"
+    autocomplete="nickname"
+  >
+
+  <p>ใช้ ← / → หรือ A / D เพื่อเคลื่อนที่</p>
+
+  <button id="start">เริ่มภารกิจ</button>
+</div>
+</div>
+
+    <div class="hud">
+      <div>
+        <span>SCORE</span>
+        <strong id="score">0</strong>
+      </div>
+      <div>
+        <span>BEST SCORE</span>
+        <strong id="best">0</strong>
+      </div>
+    </div>
+
+    <section class="leaderboard">
+  <div class="leaderboard-header">
+    <h2>🏆 LEADERBOARD</h2>
+    <button id="refreshLeaderboard" type="button">
+      ↻ รีเฟรช
+    </button>
+  </div>
+
+  <div class="leaderboard-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>อันดับ</th>
+          <th>ชื่อนักบิน</th>
+          <th>คะแนน</th>
+        </tr>
+      </thead>
+
+      <tbody id="leaderboardBody">
+        <tr>
+          <td colspan="3" style="text-align: center;">
+            กำลังโหลดข้อมูล...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p id="leaderboardMessage" role="status" aria-live="polite">
+    กำลังเชื่อมต่อฐานข้อมูล...
+  </p>
+</section>
+<section class="history-section">
+  <div class="history-header">
+    <h2>📜 GAME HISTORY</h2>
+    <button id="refreshHistory" type="button">
+      ↻ รีเฟรช
+    </button>
+  </div>
+
+  <div class="history-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>วันและเวลา</th>
+          <th>ชื่อนักบิน</th>
+          <th>คะแนน</th>
+        </tr>
+      </thead>
+
+      <tbody id="historyBody">
+        <tr>
+          <td colspan="3" style="text-align:center">
+            กำลังโหลดข้อมูล...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p id="historyMessage" role="status" aria-live="polite">
+    กำลังโหลดประวัติ...
+  </p>
+</section>
+    <p id="status">รอคำสั่งจากนักบิน...</p>
+    <button id="musicToggle" type="button">
+  🔊 เปิดเพลง
+</button>
+
+    <footer>
+      ROBO ESCAPE · COMPUTER ENGINEERING PROJECT
+    </footer>
+  </main>
+
+  <audio id="bgMusic" loop preload="auto">
+  <source src="assets/background.mp3" type="audio/mpeg">
+</audio>
+<audio id="crashSound" preload="auto">
+  <source src="assets/crash.mp3" type="audio/mpeg">
+</audio>
+  <script>
+    // 1. เตรียมพื้นที่วาดเกม
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const scoreText = document.getElementById("score");
+    const statusText = document.getElementById("status");
+    const startScreen = document.getElementById("startScreen");
+    const bestText = document.getElementById("best");
+    const startButton = document.getElementById("start");
+    const bgMusic = document.getElementById("bgMusic");
+    const crashSound = document.getElementById("crashSound");
+    const musicToggle = document.getElementById("musicToggle");
+    const leaderboardBody = document.getElementById("leaderboardBody");
+    const leaderboardMessage = document.getElementById("leaderboardMessage");
+    const refreshLeaderboardButton =
+    document.getElementById("refreshLeaderboard");
+    const historyBody = document.getElementById("historyBody");
+    const historyMessage = document.getElementById("historyMessage");
+    const refreshHistoryButton = document.getElementById("refreshHistory");
+
+let musicEnabled = true;
+
+function updateMusicButton() {
+  musicToggle.textContent = musicEnabled
+    ? " ปิดเพลง"
+    : " เปิดเพลง";
+}
+
+    async function toggleMusic() {
+  musicEnabled = !musicEnabled;
+
+  if (musicEnabled) {
+    try {
+      await bgMusic.play();
+    } catch (error) {
+      statusText.textContent =
+        "ไม่สามารถเล่นเพลงได้ กรุณาตรวจสอบไฟล์เพลง";
+    }
+  } else {
+    bgMusic.pause();
+  }
+
+  updateMusicButton();
+}
+
+musicToggle.addEventListener("click", toggleMusic);
+updateMusicButton();
+
+    // 2. กำหนดข้อมูลเกม
+    const player = {
+      x: 280,
+      y: 340,
+      w: 40,
+      h: 40
+    };
+
+    let playerName = localStorage.getItem("roboPlayerName") || "";
+    document.getElementById("playerName").value = playerName;
+    let obstacles = [];
+    let keys = {};
+    let score = 0;
+    let speedLevel = 0;
+    let running = false;
+    let lastTime = 0;
+    let spawnTimer = 0;
+    let animationId = null;
+
+    let best = Number(localStorage.getItem("roboBest") || 0);
+    bestText.textContent = best;
+    const moveLeftButton = document.getElementById("moveLeft");
+const moveRightButton = document.getElementById("moveRight");
+
+function startTouchMove(direction) {
+  keys[direction] = true;
+}
+
+function stopTouchMove(direction) {
+  keys[direction] = false;
+}
+
+function setupTouchButton(button, direction) {
+  button.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    startTouchMove(direction);
+
+    if (button.setPointerCapture) {
+      button.setPointerCapture(event.pointerId);
+    }
+  });
+
+  const stop = () => stopTouchMove(direction);
+
+  button.addEventListener("pointerup", stop);
+  button.addEventListener("pointercancel", stop);
+  button.addEventListener("lostpointercapture", stop);
+  button.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+  });
+}
+
+setupTouchButton(moveLeftButton, "ArrowLeft");
+setupTouchButton(moveRightButton, "ArrowRight");
+
+window.addEventListener("blur", () => {
+  stopTouchMove("ArrowLeft");
+  stopTouchMove("ArrowRight");
+});
+
+    // 3. เริ่มเกมใหม่
+    function startGame() {
+  // ตรวจสอบชื่อก่อนเริ่มเกม
+  const nameInput = document.getElementById("playerName");
+  const enteredName = nameInput.value.trim();
+
+  if (!enteredName) {
+    nameInput.placeholder = "กรุณาตั้งชื่อก่อนเล่น!";
+    nameInput.focus();
+    statusText.textContent = "กรุณาตั้งชื่อก่อนเริ่มภารกิจ";
+    return;
+  }
+
+  // บันทึกชื่อผู้เล่น
+  playerName = enteredName.slice(0, 20);
+  localStorage.setItem("roboPlayerName", playerName);
+
+  // ยกเลิกลูปเดิม ถ้ามี
+  if (animationId !== null) {
+    cancelAnimationFrame(animationId);
+  }
+
+  // รีเซ็ตข้อมูลเกม
+  player.x = 280;
+  obstacles = [];
+  keys = {};
+  score = 0;
+  speedLevel = 0;
+  lastTime = 0;
+  spawnTimer = 0;
+  running = true;
+  animationId = null;
+
+  // คืนค่าหน้าเริ่มเกม
+  startScreen.querySelector("h2").textContent = "READY, PILOT?";
+  startScreen.querySelector(".robot-icon").textContent = "🤖";
+
+  const paragraphs = startScreen.querySelectorAll("p");
+  paragraphs[0].innerHTML =
+    "หลบสิ่งกีดขวางให้นานที่สุด<br>ยิ่งอยู่รอด คะแนนยิ่งสูง";
+  paragraphs[1].textContent =
+    "ใช้ ← / → หรือ A / D เพื่อเคลื่อนที่";
+
+  // อัปเดตหน้าจอ
+  scoreText.textContent = "0";
+  bestText.textContent = best;
+  statusText.textContent = "ภารกิจกำลังดำเนินการ...";
+  startButton.textContent = "เล่นอีกครั้ง";
+  startScreen.style.display = "none";
+
+  // เล่นเพลง หากเปิดใช้งานไว้
+  if (musicEnabled) {
+    bgMusic.play().catch(() => {
+      statusText.textContent =
+        "เกมเริ่มแล้ว แต่เล่นเพลงไม่ได้ กรุณาตรวจสอบไฟล์เพลง";
+    });
+  }
+
+  // เริ่มลูปเกม
+  draw();
+  animationId = requestAnimationFrame(loop);
+}
+async function loadLeaderboard() {
+  async function loadHistory() {
+  refreshHistoryButton.disabled = true;
+  historyMessage.textContent = "กำลังโหลดประวัติการเล่น...";
+
+  try {
+    const response = await fetch("/api/history", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("โหลดประวัติไม่ได้");
+    }
+
+    const result = await response.json();
+
+    if (!result.success || !Array.isArray(result.history)) {
+      throw new Error(
+        result.message || "รูปแบบข้อมูลไม่ถูกต้อง"
+      );
+    }
+
+    historyBody.replaceChildren();
+
+    if (result.history.length === 0) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+
+      cell.colSpan = 3;
+      cell.textContent = "ยังไม่มีประวัติการเล่น";
+      cell.style.textAlign = "center";
+
+      row.appendChild(cell);
+      historyBody.appendChild(row);
+
+      historyMessage.textContent =
+        "เล่นเกมให้จบหนึ่งรอบเพื่อบันทึกประวัติ";
+      return;
+    }
+
+    result.history.forEach((item) => {
+      const row = document.createElement("tr");
+      const dateCell = document.createElement("td");
+      const nameCell = document.createElement("td");
+      const scoreCell = document.createElement("td");
+
+      const date = new Date(item.created_at);
+
+      dateCell.textContent = Number.isNaN(date.getTime())
+        ? String(item.created_at ?? "-")
+        : date.toLocaleString("th-TH", {
+            dateStyle: "short",
+            timeStyle: "short"
+          });
+
+      nameCell.textContent = String(
+        item.player_name ?? "Player"
+      );
+
+      const score = Number(item.score);
+      scoreCell.textContent = Number.isFinite(score)
+        ? Math.floor(score).toLocaleString("th-TH")
+        : "-";
+
+      row.append(dateCell, nameCell, scoreCell);
+      historyBody.appendChild(row);
+    });
+
+    historyMessage.textContent =
+      `แสดงประวัติ ${result.history.length} รอบล่าสุด`;
+
+  } catch (error) {
+    console.error("โหลดประวัติไม่สำเร็จ:", error);
+
+    historyBody.replaceChildren();
+
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+
+    cell.colSpan = 3;
+    cell.textContent = "ไม่สามารถโหลดประวัติได้";
+    cell.style.textAlign = "center";
+
+    row.appendChild(cell);
+    historyBody.appendChild(row);
+
+    historyMessage.textContent =
+      "ตรวจสอบเซิร์ฟเวอร์ แล้วกดรีเฟรชอีกครั้ง";
+
+  } finally {
+    refreshHistoryButton.disabled = false;
+  }
+}
+
+refreshHistoryButton.addEventListener("click", loadHistory);
+  refreshLeaderboardButton.disabled = true;
+  leaderboardMessage.textContent = "กำลังโหลดคะแนนจากฐานข้อมูล...";
+
+  try {
+    const response = await fetch("/api/leaderboard", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("ไม่สามารถโหลดคะแนนจากเซิร์ฟเวอร์ได้");
+    }
+
+    const result = await response.json();
+
+    // รองรับ API ที่ส่ง array โดยตรง หรือส่ง array ใน object
+    let scores = Array.isArray(result)
+      ? result
+      : result.leaderboard ?? result.scores ?? result.data;
+
+    if (result.success === false || !Array.isArray(scores)) {
+      throw new Error("รูปแบบข้อมูลคะแนนไม่ถูกต้อง");
+    }
+
+    scores = scores
+      .filter(item =>
+        item &&
+        Number.isFinite(Number(item.score)) &&
+        Number(item.score) >= 0
+      )
+      .sort((a, b) => Number(b.score) - Number(a.score))
+      .slice(0, 10);
+
+    leaderboardBody.replaceChildren();
+
+    if (scores.length === 0) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+
+      cell.colSpan = 3;
+      cell.textContent = "ยังไม่มีคะแนนในระบบ";
+      cell.style.textAlign = "center";
+
+      row.appendChild(cell);
+      leaderboardBody.appendChild(row);
+
+      leaderboardMessage.textContent = "รอผู้เล่นคนแรก!";
+      return;
+    }
+
+    scores.forEach((item, index) => {
+      const row = document.createElement("tr");
+      const rankCell = document.createElement("td");
+      const nameCell = document.createElement("td");
+      const scoreCell = document.createElement("td");
+
+      const rank = index + 1;
+
+      rankCell.textContent =
+        rank === 1 ? "🥇" :
+        rank === 2 ? "🥈" :
+        rank === 3 ? "🥉" : String(rank);
+
+      nameCell.textContent =
+        String(item.player_name ?? item.playerName ?? "Player");
+
+      scoreCell.textContent =
+        Math.floor(Number(item.score)).toLocaleString("th-TH");
+
+      row.append(rankCell, nameCell, scoreCell);
+      leaderboardBody.appendChild(row);
+    });
+
+    leaderboardMessage.textContent =
+      `แสดง ${scores.length} อันดับจากฐานข้อมูล`;
+
+  } catch (error) {
+    console.error("โหลด Leaderboard ไม่สำเร็จ:", error);
+
+    leaderboardBody.replaceChildren();
+
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+
+    cell.colSpan = 3;
+    cell.textContent = "ไม่สามารถโหลดอันดับได้";
+    cell.style.textAlign = "center";
+
+    row.appendChild(cell);
+    leaderboardBody.appendChild(row);
+
+    leaderboardMessage.textContent =
+      "ตรวจสอบเซิร์ฟเวอร์ แล้วกดรีเฟรชอีกครั้ง";
+
+  } finally {
+    refreshLeaderboardButton.disabled = false;
+  }
+}
+
+refreshLeaderboardButton.addEventListener("click", loadLeaderboard);
+    // 4. ตรวจจับการชน
+    function hit(a, b) {
+      return a.x < b.x + b.w &&
+             a.x + a.w > b.x &&
+             a.y < b.y + b.h &&
+             a.y + a.h > b.y;
+    }
+
+    // 5. วาดฉากและวัตถุ
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = "#263a54";
+
+      for (let x = 20; x < 600; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 400);
+        ctx.stroke();
+      }
+
+      // หุ่นยนต์
+      ctx.fillStyle = "#43d9ff";
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+
+      // ดวงตา
+      ctx.fillStyle = "#101827";
+      ctx.fillRect(player.x + 8, player.y + 10, 7, 7);
+      ctx.fillRect(player.x + 25, player.y + 10, 7, 7);
+
+      // สิ่งกีดขวาง
+      ctx.fillStyle = "#ff647c";
+
+      for (const o of obstacles) {
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+      }
+    }
+
+    // 6. จบเกมเมื่อชนสิ่งกีดขวาง
+    async function gameOver() {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+
+  crashSound.currentTime = 0;
+  crashSound.play().catch(() => {});
+
+  running = false;
+
+  const finalScore = Math.floor(score);
+
+  best = Math.max(best, finalScore);
+  localStorage.setItem("roboBest", String(best));
+
+  scoreText.textContent = finalScore;
+  bestText.textContent = best;
+
+  startScreen.querySelector("h2").textContent =
+    "MISSION FAILED";
+
+  startScreen.querySelector(".robot-icon").textContent = "🤖";
+
+  startScreen.querySelectorAll("p")[0].innerHTML =
+    "คะแนนของคุณ: " + finalScore +
+    "<br>คะแนนสูงสุด: " + best;
+
+  startScreen.querySelectorAll("p")[1].textContent =
+    "พร้อมลองอีกครั้งหรือยัง?";
+
+  startButton.textContent = "เล่นอีกครั้ง";
+  startScreen.style.display = "flex";
+  statusText.textContent = "กำลังบันทึกคะแนน...";
+
+  // ส่งคะแนนไปบันทึกในฐานข้อมูล
+  try {
+    const response = await fetch("/api/scores", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+  playerName: playerName || "Player",
+  score: finalScore
+})
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || "บันทึกคะแนนไม่สำเร็จ");
+    }
+
+    statusText.textContent = "ภารกิจสิ้นสุดแล้ว — บันทึกคะแนนสำเร็จ";
+  } catch (error) {
+    console.error("บันทึกคะแนนไม่สำเร็จ:", error);
+    statusText.textContent =
+      "ภารกิจสิ้นสุดแล้ว — บันทึกคะแนนไม่ได้";
+  }
+
+  draw();
+  await loadLeaderboard();
+  await loadHistory();
+}
+
+    // 7. วนลูปอัปเดตเกม
+    function loop(time) {
+      if (!running) return;
+
+      const dt = lastTime
+        ? Math.min((time - lastTime) / 1000, 0.05)
+        : 0;
+
+      lastTime = time;
+
+      // ควบคุมหุ่นยนต์
+      const speed = 260;
+
+      if (keys.ArrowLeft || keys.a) {
+        player.x -= speed * dt;
+      }
+
+      if (keys.ArrowRight || keys.d) {
+        player.x += speed * dt;
+      }
+
+      player.x = Math.max(0, Math.min(560, player.x));
+
+      // สร้างสิ่งกีดขวาง
+      spawnTimer += dt;
+      const interval = Math.max(0.28, 0.8 - score / 500);
+
+      if (spawnTimer >= interval) {
+        spawnTimer = 0;
+
+        const size = 25 + Math.random() * 20;
+
+        obstacles.push({
+          x: Math.random() * (600 - size),
+          y: -size,
+          w: size,
+          h: size,
+          speed: 150 + Math.random() * 100 + score * 0.3
+        });
+      }
+      const newSpeedLevel = Math.floor(score / 500);
+
+      if (newSpeedLevel > speedLevel) {
+        speedLevel = newSpeedLevel;
+        statusText.textContent = `ความเร็วเพิ่มขึ้น! ระดับ ${speedLevel + 1}`;
+      }
+
+      // เคลื่อนที่และตรวจจับการชน
+      for (const o of obstacles) {
+        o.y += (o.speed + speedLevel * 0.8) * dt;
+
+        if (hit(player, o)) {
+          gameOver();
+          return;
+        }
+      }
+
+      // ลบสิ่งกีดขวางที่หลุดจอ
+      obstacles = obstacles.filter(o => o.y < 420);
+
+      // คำนวณคะแนน
+      score += dt * 10;
+      scoreText.textContent = Math.floor(score);
+
+      draw();
+
+      animationId = requestAnimationFrame(loop);
+    }
+
+    // 8. รับปุ่มควบคุม
+    window.addEventListener("keydown", e => {
+      if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+        e.preventDefault();
+      }
+
+      keys[e.key] = true;
+      keys[e.key.toLowerCase()] = true;
+    });
+
+    window.addEventListener("keyup", e => {
+      keys[e.key] = false;
+      keys[e.key.toLowerCase()] = false;
+    });
+
+    // 9. เชื่อมปุ่มเริ่มเกม
+    startButton.addEventListener("click", startGame);
+    speedLevel = 0;
+
+    // แสดงฉากก่อนเริ่มเกม
+    draw();
+    loadHistory();
+    loadLeaderboard();
+  </script>
+</body>
+</html>

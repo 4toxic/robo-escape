@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robo Escape | Admin Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: #eaf2ff;
+    }
+    h1 { color: #55e6ff; margin-bottom: 8px; }
+    .subtitle { color: #9aa9c5; margin-bottom: 28px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .card, .panel {
+      background: #151d32;
+      border: 1px solid #293654;
+      border-radius: 14px;
+      padding: 22px;
+    }
+    .card p { color: #9aa9c5; margin: 0 0 12px; }
+    .card strong { font-size: 30px; color: #55e6ff; }
+    .panel h2 { margin-top: 0; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #293654;
+      text-align: left;
+    }
+    th { color: #55e6ff; }
+    .actions { display: flex; gap: 10px; margin-bottom: 22px; }
+    button {
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #55e6ff;
+      color: #0b1020;
+    }
+    a { color: #55e6ff; align-self: center; }
+    #message { color: #9aa9c5; margin: 12px 0; }
+    @media (max-width: 600px) {
+      body { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 Robo Escape</h1>
+  <p class="subtitle">Admin Dashboard — Game Statistics</p>
+
+  <div class="actions">
+    <button onclick="loadDashboard()">รีเฟรชข้อมูล</button>
+    <a href="/">กลับไปหน้าเกม</a>
+  </div>
+
+  <section class="stats">
+    <div class="card">
+      <p>จำนวนคะแนนที่บันทึก</p>
+      <strong id="totalGames">0</strong>
+    </div>
+    <div class="card">
+      <p>คะแนนสูงสุด</p>
+      <strong id="highestScore">0</strong>
+    </div>
+    <div class="card">
+      <p>คะแนนเฉลี่ย</p>
+      <strong id="averageScore">0</strong>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>🏆 ตารางคะแนน 10 อันดับ</h2>
+    <p id="message">กำลังโหลดข้อมูล...</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>อันดับ</th>
+            <th>ชื่อผู้เล่น</th>
+            <th>คะแนน</th>
+            <th>วันที่บันทึก</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    async function loadDashboard() {
+      const message = document.getElementById("message");
+      message.textContent = "กำลังโหลดข้อมูล...";
+
+      try {
+        const [statsResponse, boardResponse] = await Promise.all([
+          fetch("/api/admin/stats"),
+          fetch("/api/leaderboard")
+        ]);
+
+        if (!statsResponse.ok || !boardResponse.ok) {
+          throw new Error("โหลดข้อมูลไม่สำเร็จ");
+        }
+
+        const statsData = await statsResponse.json();
+        const boardData = await boardResponse.json();
+
+        document.getElementById("totalGames").textContent =
+          statsData.stats.totalGames;
+        document.getElementById("highestScore").textContent =
+          statsData.stats.highestScore;
+        document.getElementById("averageScore").textContent =
+          statsData.stats.averageScore;
+
+        const tbody = document.getElementById("leaderboard");
+        tbody.replaceChildren();
+
+        boardData.leaderboard.forEach((player, index) => {
+          const tr = document.createElement("tr");
+          const values = [
+            index + 1,
+            player.player_name,
+            player.score,
+            new Date(player.created_at).toLocaleString("th-TH")
+          ];
+
+          values.forEach(value => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+          });
+
+          tbody.appendChild(tr);
+        });
+
+        message.textContent = boardData.leaderboard.length
+          ? "โหลดข้อมูลสำเร็จ"
+          : "ยังไม่มีคะแนน ลองเล่นเกมเพื่อบันทึกคะแนน";
+      } catch (error) {
+        message.textContent =
+          "โหลดข้อมูลไม่ได้ กรุณาตรวจสอบว่าเซิร์ฟเวอร์กำลังทำงาน";
+        console.error(error);
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
