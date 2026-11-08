@@ -3,7 +3,7 @@ const Database = require("better-sqlite3");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // เปิดใช้งาน JSON และไฟล์เกมใน public
 app.use(express.json({ limit: "10kb" }));
@@ -27,6 +27,52 @@ db.exec(`
     )
   );
 `);
+// ตารางเก็บ Achievement ของผู้เล่น
+db.exec(`
+  CREATE TABLE IF NOT EXISTS achievements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_name TEXT NOT NULL,
+    achievement_id TEXT NOT NULL,
+    unlocked_at TEXT NOT NULL DEFAULT (
+      strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    ),
+    UNIQUE(player_name, achievement_id)
+  );
+`);
+
+// รายการ Achievement ที่มีในเกม
+const ACHIEVEMENTS = [
+  {
+    id: "first_mission",
+    name: "First Mission",
+    description: "จบเกมครั้งแรก",
+    icon: "🚀"
+  },
+  {
+    id: "hillbilly",
+    name: "Hillbilly",
+    description: "ทำคะแนนได้ตั้งแต่ 100 คะแนน",
+    icon: "🎯"
+  },
+  {
+    id: "baby",
+    name: "Baby",
+    description: "ทำคะแนนได้ตั้งแต่ 500 คะแนน",
+    icon: "🎯"
+  },
+  {
+    id: "common",
+    name: "Common",
+    description: "ทำคะแนนได้ตั้งแต่ 1000 คะแนน",
+    icon: "🎯"
+  },
+  {
+    id: "ultimate",
+    name: "Ultimate",
+    description: "ทำคะแนนได้ตั้งแต่ 2000 คะแนน",
+    icon: "🏆"
+  },
+];
 
 // API ตรวจสอบว่าเซิร์ฟเวอร์ทำงาน
 app.get("/api/status", (req, res) => {
