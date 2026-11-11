@@ -413,6 +413,152 @@ button:hover {
   background: #1b1033;
   border-color: #bd70ff;
 }
+
+/* ===== LOVE LETTER EVENT ===== */
+#loveLetterOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #54204f 0%, #210d31 65%, #10091f 100%);
+  line-height: normal;
+  text-align: center;
+}
+#loveLetterOverlay.active { display: flex; }
+#loveLetterPanel {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 440px);
+  padding: 26px 20px;
+  border: 1px solid #ff9bc9;
+  border-radius: 20px;
+  background: rgba(42, 15, 48, 0.94);
+  box-shadow: 0 0 35px rgba(255, 105, 180, 0.35);
+}
+#loveLetterPanel h2 {
+  margin: 0 0 14px;
+  color: #ffacd2 !important;
+  font-size: clamp(22px, 5vw, 30px);
+}
+#loveLetterQuestion {
+  min-height: 58px;
+  margin: 12px 0 20px;
+  color: #fff !important;
+  font-size: clamp(17px, 4vw, 21px);
+  line-height: 1.5;
+}
+.love-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#loveLetterOverlay button {
+  min-width: 120px;
+  border: 1px solid #ffb6d7;
+  border-radius: 12px;
+  padding: 12px 18px;
+  color: #fff !important;
+  background: linear-gradient(135deg, #ec4899, #a21caf);
+}
+#loveLetterOverlay button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+#loveEnvelopeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 230px;
+  height: 165px;
+  min-width: 0;
+  margin: 30px auto 10px;
+  padding: 0 !important;
+  font-size: 90px;
+  line-height: 1;
+  border: 2px solid #ffb6d7;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    #ec4899,
+    #a21caf
+  );
+  animation: envelope-pulse 1.2s ease-in-out infinite;
+}
+#loveEnvelopeButton {
+  width: 190px;
+  height: 140px;
+  font-size: 72px;
+  margin: 24px auto 10px;
+}
+#loveLetterHint {
+  color: #ffd6e8 !important;
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+.love-fall-item {
+  position: absolute;
+  z-index: 1;
+  top: -70px;
+  pointer-events: none;
+  user-select: none;
+  animation-name: love-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+.love-kiss-sequence {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 50%;
+  font-size: clamp(76px, 17vw, 150px);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 0 18px rgba(255,105,180,.85));
+  animation: kiss-fall-spin 2.35s ease-in-out forwards;
+}
+.love-heart-float {
+  position: absolute;
+  z-index: 5;
+  bottom: 18%;
+  pointer-events: none;
+  user-select: none;
+  font-size: clamp(28px, 5vw, 54px);
+  filter: drop-shadow(0 0 10px rgba(255,105,180,.8));
+  animation: heart-float-up 1.9s ease-out forwards;
+}
+@keyframes kiss-fall-spin {
+  0% { transform: translate(-50%, -65vh) rotate(0deg) scale(.75); opacity: 0; }
+  18% { opacity: 1; }
+  48% { transform: translate(-50%, -50%) rotate(0deg) scale(1); opacity: 1; }
+  68% { transform: translate(-50%, -50%) rotate(360deg) scale(1.12); opacity: 1; }
+  82% { transform: translate(-50%, -50%) rotate(360deg) scale(1.3,.82); opacity: 1; }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); opacity: 1; }
+}
+@keyframes heart-float-up {
+  0% { transform: translate(-50%, 20px) scale(.45); opacity: 0; }
+  18% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--heart-drift)), -70vh) scale(1.25) rotate(var(--heart-rotate)); opacity: 0; }
+}
+@keyframes love-fall {
+  from { transform: translate3d(0, -30px, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  to { transform: translate3d(var(--drift), 110vh, 0) rotate(360deg); opacity: 0.9; }
+}
+@keyframes envelope-pulse {
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 12px #ff9bc9); }
+}
+@media (max-width: 480px) {
+  #loveLetterPanel { padding: 22px 14px; }
+  .love-actions { gap: 8px; }
+  #loveLetterOverlay button { min-width: 112px; }
+}
+
 </style>
 </head>
 <body>
@@ -515,6 +661,18 @@ button:hover {
   </button>
   <p id="settingsMessage" role="status"></p>
 </section>
+
+  <div id="loveLetterOverlay" aria-live="polite">
+    <div id="loveLetterPanel">
+      <h2 id="loveLetterTitle">✉️ A SPECIAL LETTER</h2>
+      <p id="loveLetterQuestion">FOR YOU</p>
+      <div id="loveLetterActions" class="love-actions">
+        <button id="loveEnvelopeButton" type="button" aria-label="OPEN">✉️</button>
+      </div>
+      <p id="loveLetterHint"> OPEN </p>
+    </div>
+  </div>
+
   </main>
   <audio id="bgMusic" loop preload="auto">
   <source src="assets/background.mp3" type="audio/mpeg">
@@ -522,6 +680,23 @@ button:hover {
 <audio id="crashSound" preload="auto">
   <source src="assets/crash.mp3" type="audio/mpeg">
 </audio>
+
+<audio id="letterMusic" loop preload="auto">
+  <source src="assets/love-letter-music.mp3" type="audio/mpeg">
+</audio>
+<audio id="letterRainSound" preload="auto">
+  <source src="assets/letter-rain.mp3" type="audio/mpeg">
+</audio>
+<audio id="envelopeOpenSound" preload="auto">
+  <source src="assets/envelope-open.mp3" type="audio/mpeg">
+</audio>
+<audio id="rejectSound" preload="auto">
+  <source src="assets/reject.mp3" type="audio/mpeg">
+</audio>
+<audio id="acceptSound" preload="auto">
+  <source src="assets/accept.mp3" type="audio/mpeg">
+</audio>
+
   <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
@@ -722,6 +897,204 @@ updateMusicButton();
     let birdSpawnTimer = 0;
     let birdNextSpawn = 4.5 + Math.random() * 2.5;
     let best = Number(localStorage.getItem("roboBest") || 0);
+
+    // ===== LOVE LETTER EVENT =====
+    const loveLetterOverlay = document.getElementById("loveLetterOverlay");
+    const loveLetterTitle = document.getElementById("loveLetterTitle");
+    const loveLetterQuestion = document.getElementById("loveLetterQuestion");
+    const loveLetterActions = document.getElementById("loveLetterActions");
+    const loveLetterHint = document.getElementById("loveLetterHint");
+    const loveEnvelopeButton = document.getElementById("loveEnvelopeButton");
+    const letterMusic = document.getElementById("letterMusic");
+    const letterRainSound = document.getElementById("letterRainSound");
+    const envelopeOpenSound = document.getElementById("envelopeOpenSound");
+    const rejectSound = document.getElementById("rejectSound");
+    const acceptSound = document.getElementById("acceptSound");
+
+    const loveQuestions = [
+      "เป็นแฟนกันมั้ยยย 🥰",
+      "เป็นแฟนกันนะะะ 😊",
+      "จะไม่เป็นจริงๆ หรอออ 😕",
+      "เป็นแฟนกันน้าาา 🥺",
+      "เป็นแฟนกันเถอะน้าาา 😢"
+    ];
+    const sadEmojis = ["😧", "😕", "🥺", "😢", "😭"];
+    let loveEventUsed = false;
+    let loveQuestionIndex = 0;
+    let loveParticleTimer = null;
+    let loveEventPhase = "idle";
+
+    function playLoveSound(audio, volume = 1) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = volume;
+      audio.play().catch(() => {});
+    }
+
+    function stopLoveParticles() {
+      if (loveParticleTimer !== null) {
+        clearInterval(loveParticleTimer);
+        loveParticleTimer = null;
+      }
+    }
+
+    function clearLoveParticles() {
+      loveLetterOverlay.querySelectorAll(".love-fall-item").forEach(item => item.remove());
+    }
+
+    function startLoveParticles(emoji, interval = 130) {
+      stopLoveParticles();
+      const addParticle = () => {
+        const particle = document.createElement("span");
+        particle.className = "love-fall-item";
+        particle.textContent = emoji;
+        particle.style.left = Math.random() * 100 + "%";
+        particle.style.fontSize = (22 + Math.random() * 26) + "px";
+        particle.style.animationDuration = (2.5 + Math.random() * 2) + "s";
+        particle.style.setProperty("--drift", (Math.random() * 150 - 75) + "px");
+        particle.addEventListener("animationend", () => particle.remove(), { once: true });
+        loveLetterOverlay.appendChild(particle);
+      };
+      for (let i = 0; i < 12; i++) addParticle();
+      loveParticleTimer = setInterval(addParticle, interval);
+    }
+
+    function startLetterEvent() {
+      running = false;
+
+      // หยุดเพลงเกมไว้ตรงตำแหน่งเดิม แล้วเปลี่ยนเป็นเพลงช่วงจดหมาย
+      bgMusic.pause();
+
+      loveEventPhase = "letter";
+      loveQuestionIndex = 0;
+      loveLetterOverlay.classList.add("active");
+      loveLetterTitle.textContent = " ✉️ A SPECIAL LETTER ";
+      loveLetterQuestion.textContent = " FOR YOU ... ";
+      loveLetterActions.innerHTML = '<button id="loveEnvelopeButton" type="button" aria-label="OPEN">✉️</button>';
+      loveLetterHint.textContent = " OPEN ";
+      loveLetterActions.querySelector("#loveEnvelopeButton").addEventListener("click", openLoveLetter);
+      clearLoveParticles();
+      startLoveParticles("✉️", 115);
+      playLoveSound(letterRainSound, 0.7);
+      letterMusic.volume = 0.28;
+      letterMusic.currentTime = 0;
+      letterMusic.play().catch(() => {});
+    }
+
+    function openLoveLetter() {
+  if (loveEventPhase !== "letter") return;
+  loveEventPhase = "question";
+  letterRainSound.pause();
+  letterRainSound.currentTime = 0;
+  stopLoveParticles();
+  clearLoveParticles();
+  playLoveSound(envelopeOpenSound, 0.85);
+  showLoveQuestion();
+}
+
+    function showLoveQuestion() {
+      loveEventPhase = "question";
+      loveLetterTitle.textContent = "A LITTLE QUESTION";
+      loveLetterQuestion.textContent = loveQuestions[loveQuestionIndex % loveQuestions.length];
+      loveLetterActions.innerHTML = `
+        <button id="loveYesButton" type="button"> เป็น </button>
+        <button id="loveNoButton" type="button"> ไม่เป็น </button>
+      `;
+      loveLetterHint.textContent = "";
+      loveLetterActions.querySelector("#loveYesButton").addEventListener("click", acceptLoveQuestion);
+      loveLetterActions.querySelector("#loveNoButton").addEventListener("click", rejectLoveQuestion);
+    }
+
+    function rejectLoveQuestion() {
+      if (loveEventPhase !== "question") return;
+      loveEventPhase = "reject";
+      playLoveSound(rejectSound, 0.9);
+      loveLetterTitle.textContent = " SAD ... ";
+      loveLetterQuestion.textContent = "😰";
+      loveLetterActions.innerHTML = "";
+      loveLetterHint.textContent = "";
+      startLoveParticles(sadEmojis[loveQuestionIndex % sadEmojis.length], 95);
+      window.setTimeout(() => {
+        if (loveEventPhase !== "reject") return;
+        stopLoveParticles();
+        clearLoveParticles();
+        loveQuestionIndex++;
+        showLoveQuestion();
+      }, 1700);
+    }
+
+    function acceptLoveQuestion() {
+      if (loveEventPhase !== "question") return;
+      loveEventPhase = "kiss-sequence";
+      playLoveSound(acceptSound, 1);
+      loveLetterTitle.textContent = "";
+      loveLetterQuestion.textContent = "";
+      loveLetterActions.innerHTML = "";
+      loveLetterHint.textContent = "";
+      stopLoveParticles();
+      clearLoveParticles();
+      const kiss = document.createElement("span");
+      kiss.className = "love-kiss-sequence";
+      kiss.textContent = "😘";
+      loveLetterOverlay.appendChild(kiss);
+      window.setTimeout(() => {
+        if (loveEventPhase !== "kiss-sequence") return;
+        kiss.remove();
+
+        loveEventPhase = "heart-float";
+        const hearts = ["💗", "💓", "💖", "💕", "💞"];
+for (let i = 0; i < 65; i++) {
+  const heart = document.createElement("span");
+  heart.className = "love-heart-float";
+  heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+  heart.style.left = (3 + Math.random() * 94) + "%";
+  heart.style.fontSize = (25 + Math.random() * 45) + "px";
+  heart.style.setProperty(
+    "--heart-drift",
+    (Math.random() * 600 - 300) + "px"
+  );
+  heart.style.setProperty(
+    "--heart-rotate",
+    (Math.random() * 100 - 50) + "deg"
+  );
+  heart.style.animationDelay = (Math.random() * 0.9) + "s";
+  loveLetterOverlay.appendChild(heart);
+}
+
+        window.setTimeout(() => {
+          if (loveEventPhase !== "heart-float") return;
+          loveLetterOverlay.querySelectorAll(".love-heart-float").forEach(item => item.remove());
+          showLoveSpecialMessage();
+        }, 2450);
+      }, 2450);
+    }
+
+    function showLoveSpecialMessage() {
+      loveEventPhase = "accepted";
+      loveLetterTitle.textContent = " 💕 PIM 💕 ";
+      loveLetterQuestion.textContent = "เป็นแฟนกันแล้วน้าาาา 🥰";
+      loveLetterActions.innerHTML = '<button id="resumeGameButton" type="button">BACK INTO THE GAME</button>';
+      loveLetterHint.textContent = "BACK";
+      loveLetterActions.querySelector("#resumeGameButton").addEventListener("click", resumeAfterLoveEvent);
+      startLoveParticles("💗", 100);
+    }
+
+    function resumeAfterLoveEvent() {
+      if (loveEventPhase !== "accepted") return;
+      stopLoveParticles();
+      clearLoveParticles();
+      loveLetterOverlay.classList.remove("active");
+      loveEventPhase = "idle";
+      letterMusic.pause();
+      letterMusic.currentTime = 0;
+      if (musicEnabled) {
+        bgMusic.play().catch(() => {});
+      }
+      running = true;
+      lastTime = 0;
+      animationId = requestAnimationFrame(loop);
+    }
+
     bestText.textContent = best;
     const moveLeftButton = document.getElementById("moveLeft");
 const moveRightButton = document.getElementById("moveRight");
@@ -771,6 +1144,7 @@ window.addEventListener("blur", () => {
   obstacles = [];
   keys = {};
   score = 0;
+  loveEventUsed = false;
   speedLevel = 0;
   lastTime = 0;
   spawnTimer = 0;
@@ -1059,7 +1433,7 @@ if (hitEffect > 0) {
   }
 }
     function getAchievement(score) {
-  if (score >= 1000) {
+  if (score >= 500) {
     return {
       title: "ULTIMATE",
       message: "Well done"
@@ -1217,6 +1591,11 @@ if (hitTriggered) {
       obstacles = obstacles.filter(o => o.y < 420);
       score += dt * 10;
       scoreText.textContent = Math.floor(score);
+      if (score >= 500 && !loveEventUsed) {
+        loveEventUsed = true;
+        startLetterEvent();
+        return;
+      }
       draw();
       animationId = requestAnimationFrame(loop);
     }
